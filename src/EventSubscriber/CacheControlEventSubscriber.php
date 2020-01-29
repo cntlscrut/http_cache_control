@@ -19,7 +19,7 @@ class CacheControlEventSubscriber implements EventSubscriberInterface {
 
     $response = $event->getResponse();
 
-    if (!$response->isCacheable()) {
+    if (!$response->isCacheable() && $response->getStatusCode() !== 403) {
       return;
     }
 
@@ -38,6 +38,10 @@ class CacheControlEventSubscriber implements EventSubscriberInterface {
         $ttl = $config->get('cache.http.301_max_age', $max_age);
         break;
 
+      case 403:
+        $ttl = $config->get('cache.http.403_max_age', $max_age);
+        break;
+
       default:
         $ttl = $config->get('cache.page.max_age');
         break;
@@ -46,7 +50,7 @@ class CacheControlEventSubscriber implements EventSubscriberInterface {
     // Allow modules that set their own max age to retain it.
     // If a response max-age is different to the page max-age
     // then this suggests the max-age has already been manipulated.
-    if ($max_age != $config->get('cache.page.max_age')) {
+    if ($max_age != $config->get('cache.page.max_age') && $response->getStatusCode() !== 403) {
       $ttl = $max_age;
     }
     $response->setSharedMaxAge($ttl);

@@ -58,6 +58,14 @@ function http_cache_control_form_system_performance_settings_alter(&$form, FormS
     '#description' => t('The maximum time a 500 level response can be cached by proxies. Note: this is subject to Drupal being able to render the response.'),
   ];
 
+  $form['caching']['403_max_age'] = [
+    '#type' => 'select',
+    '#title' => t('403 cache maximum age'),
+    '#default_value' => $config->get('cache.http.403_max_age'),
+    '#options' => $form['caching']['page_cache_maximum_age']['#options'],
+    '#description' => t('The maximum time a 403 level response can be cached by proxies. This is to buffer origin from requests prior to content releases'),
+  ];
+
   $form['#submit'][] = 'http_cache_control_form_system_performance_settings_submit';
 }
 
@@ -71,5 +79,6 @@ function http_cache_control_form_system_performance_settings_submit(&$form, Form
     ->set('cache.http.404_max_age', $form_state->getValue('404_max_age'))
     ->set('cache.http.302_max_age', $form_state->getValue('302_max_age'))
     ->set('cache.http.301_max_age', $form_state->getValue('301_max_age'))
+    ->set('cache.http.403_max_age', $form_state->getValue('403_max_age'))
     ->save();
 }
